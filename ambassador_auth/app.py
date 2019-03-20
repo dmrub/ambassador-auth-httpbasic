@@ -33,6 +33,7 @@ app = Flask(__name__)
 app.url_map.add(Rule("/extauth", strict_slashes=False, endpoint="handle_authorization", defaults={"path": ""}))
 app.url_map.add(Rule("/extauth/<path:path>", endpoint="handle_authorization"))
 
+remote_header = os.getenv("AMBASSADOR_AUTH_REMOTE_HEADER", "")
 users_file = Path(os.getenv("AMBASSADOR_AUTH_USERS_FILE", "/var/lib/ambassador/auth-httpbasic/users.yaml"))
 users = {}
 users_last_modified_time = 0
@@ -121,7 +122,10 @@ def healthz():
 @app.endpoint("handle_authorization")
 @requires_auth
 def handle_authorization(path):
-    return Response(status=200)
+    headers = None
+    if remote_header:
+        headers = {remote_header: request.authorization.username}
+    return Response(status=200, headers=headers)
 
 
 @app.before_first_request
