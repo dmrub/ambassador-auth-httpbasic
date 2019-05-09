@@ -48,7 +48,8 @@ RUN  pip install -e .
 ENTRYPOINT ["gunicorn", \
     "--access-logfile=-", \
     "--log-level=info", \
-    "--workers=3", \
+    "--workers=1", \
+    "--threads=3", \
     "--bind=0.0.0.0:5000", \
     "ambassador_auth.app:app" \
     ]
